@@ -1,24 +1,34 @@
-import bs4 as bs
 import urllib.request
 import requests
 import json
+import threading
+import pprint as pp
+import datetime as dt
+import bs4 as bs
 import numpy as np
 from typing import List
 from api import distance_api as DISTANCE_API
 
 parking_slots_state = {}
+
+def refreshTable(f_stop):
+    findSlots()
+    if not f_stop.is_set():
+        threading.Timer(30, refreshTable, [f_stop]).start()
 def findSlots() -> List[str]:
+    print(f'findSlots run at: {dt.datetime.now()}')
     source = urllib.request.urlopen(
         'https://www.parking-servis.co.rs/garaze-i-parkiralista#6-slobodna-parking-mesta').read()
     soup = bs.BeautifulSoup(source, 'lxml')
-    slots = soup.find('ul','parking-count').find_all('li')
+    slots = soup.find('ul', 'parking-count').find_all('li')
     for slot in slots:
-        parking_slots_state[slot.a.text] = (slot.a['href'].split('/')[-1],slot.span.text)
-    print(parking_slots_state)
-    return [f'{key}: {value[1]}' for key,value in zip(parking_slots_state.keys(), parking_slots_state.values())]
+        parking_slots_state[slot.a.text] = (slot.a['href'].split('/')[-1], slot.span.text)
+    print(pp.pprint(parking_slots_state))
+    return [f'{key}: {value[1]}' for key, value in zip(parking_slots_state.keys(), parking_slots_state.values())]
+
 
 async def calculateDistances(latitude, longitude):
-    #TODO: TESTIRAM SA MANJE DESTINACIJA, KAKO BIH USTEDEO NA POSLATIM REQUESTOVIMA. PROMENITI KADA ZAVRSIM
+    # TODO: TESTIRAM SA MANJE DESTINACIJA, KAKO BIH USTEDEO NA POSLATIM REQUESTOVIMA. PROMENITI KADA ZAVRSIM
     dict_keys = list(parking_slots_state.values())[:-1]
     destinations = ''
     for key in dict_keys:
@@ -38,5 +48,5 @@ async def calculateDistances(latitude, longitude):
     print("Destination address with minimum distance:", data['destination_addresses'][min_index])
 
     closest_parking_lot = list(parking_slots_state.keys())[min_index]
-    print(parking_slots_state[closest_parking_lot][0])
-    return closest_parking_lot, distance_values[min_index], parking_slots_state[closest_parking_lot][1], parking_slots_state[closest_parking_lot][0]
+    return closest_parking_lot, distance_values[min_index], parking_slots_state[closest_parking_lot][1], \
+    parking_slots_state[closest_parking_lot][0]
