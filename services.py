@@ -19,16 +19,17 @@ def findSlots() -> List[str]:
 
 async def calculateDistances(latitude, longitude):
     #TODO: TESTIRAM SA MANJE DESTINACIJA, KAKO BIH USTEDEO NA POSLATIM REQUESTOVIMA. PROMENITI KADA ZAVRSIM
-    dict_keys = list(parking_slots_state.values())[:3]
+    dict_keys = list(parking_slots_state.values())[:-1]
     destinations = ''
     for key in dict_keys:
-        key = key[0].split(',')
-        destinations += key[0] + '%2C' + key[1] + '%7C'
+        if int(key[1]) > 0:
+            key = key[0].split(',')
+            destinations += key[0] + '%2C' + key[1] + '%7C'
+
     url = f'https://maps.googleapis.com/maps/api/distancematrix/json?' \
           f'origins={latitude}%2C{longitude}&destinations={destinations[:-3]}&key={DISTANCE_API}'
     response = requests.request("GET", url)
     data = dict(json.loads(response.text))
-    #dict(sorted(my_dict.items(), key=lambda item: item[1]))
     distance_values = [x['duration']['value'] for x in data['rows'][0]['elements']]
     min_index = np.argmin(distance_values)
 

@@ -2,7 +2,7 @@ import logging
 import handlers as hl
 import services as s
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler
-from api import distance_api, telegram_api
+from api import telegram_api
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
