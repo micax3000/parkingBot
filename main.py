@@ -19,7 +19,7 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(telegram_api).build()
 
     start_handler = CommandHandler('start', hl.start)
-    parking_handler = CommandHandler('parking', hl.freeSlots)
+    parking_handler = CommandHandler('slobodna_mesta', hl.freeSlots)
     text_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), hl.start)
     location_handler = MessageHandler(filters.LOCATION, hl.location)
 

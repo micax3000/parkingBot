@@ -22,31 +22,29 @@ def findSlots() -> List[str]:
     soup = bs.BeautifulSoup(source, 'lxml')
     slots = soup.find('ul', 'parking-count').find_all('li')
     for slot in slots:
-        parking_slots_state[slot.a.text] = (slot.a['href'].split('/')[-1], slot.span.text)
+        parking_slots_state[slot.a['href'].split('/')[-1]] = (slot.a.text, slot.span.text)
     print(pp.pprint(parking_slots_state))
-    return [f'{key}: {value[1]}' for key, value in zip(parking_slots_state.keys(), parking_slots_state.values())]
+    return [f'{item[1][0]}: {item[1][1]}' for item in parking_slots_state.items()]
 
 
 async def calculateDistances(latitude, longitude):
-    # TODO: TESTIRAM SA MANJE DESTINACIJA, KAKO BIH USTEDEO NA POSLATIM REQUESTOVIMA. PROMENITI KADA ZAVRSIM
-    dict_keys = list(parking_slots_state.values())[:-1]
+    distance_values = []
+    dict_keys = []
     destinations = ''
-    for key in dict_keys:
-        if int(key[1]) > 0:
-            key = key[0].split(',')
+    data = {}
+    for i in range(0,len(parking_slots_state.items()),25):
+        dict_keys.extend([item[0] for item in list(parking_slots_state.items())[i:i+25] if int(item[1][1])>0 and item[0] not in dict_keys])
+        if(len(dict_keys)<25 and i < len(parking_slots_state)-25):
+            continue
+        for key in dict_keys:
+            key = key.split(',')
             destinations += key[0] + '%2C' + key[1] + '%7C'
 
-    url = f'https://maps.googleapis.com/maps/api/distancematrix/json?' \
-          f'origins={latitude}%2C{longitude}&destinations={destinations[:-3]}&key={DISTANCE_API}'
-    response = requests.request("GET", url)
-    data = dict(json.loads(response.text))
-    distance_values = [x['duration']['value'] for x in data['rows'][0]['elements']]
+        url = f'https://maps.googleapis.com/maps/api/distancematrix/json?' \
+              f'origins={latitude}%2C{longitude}&destinations={destinations[:-3]}&key={DISTANCE_API}'
+        response = requests.request("GET", url)
+        data = dict(json.loads(response.text))
+        distance_values.extend([x['duration']['value'] for x in data['rows'][0]['elements']])
     min_index = np.argmin(distance_values)
-
-    print("Index of destination address with minimum distance:", min_index)
-    print("Minimum distance:", distance_values[min_index])
-    print("Destination address with minimum distance:", data['destination_addresses'][min_index])
-
-    closest_parking_lot = list(parking_slots_state.keys())[min_index]
-    return closest_parking_lot, distance_values[min_index], parking_slots_state[closest_parking_lot][1], \
-    parking_slots_state[closest_parking_lot][0]
+    closest_parking_lot = parking_slots_state[dict_keys[min_index]]
+    return closest_parking_lot[0],data['destination_addresses'][min_index],closest_parking_lot[1],dict_keys[min_index]
