@@ -29,14 +29,12 @@ def findSlots() -> List[str]:
 
 async def calculateDistances(latitude, longitude):
     distance_values = []
-    dict_keys = []
-    destinations = ''
+    addresses = []
     data = {}
-    for i in range(0,len(parking_slots_state.items()),25):
-        dict_keys.extend([item[0] for item in list(parking_slots_state.items())[i:i+25] if int(item[1][1])>0 and item[0] not in dict_keys])
-        if(len(dict_keys)<25 and i < len(parking_slots_state)-25):
-            continue
-        for key in dict_keys:
+    dict_keys = [item[0] for item in list(parking_slots_state.items()) if int(item[1][1]) > 0]
+    for i in range(0, len(parking_slots_state.items()), 25):
+        destinations = ''
+        for key in dict_keys[i:i+25]:
             key = key.split(',')
             destinations += key[0] + '%2C' + key[1] + '%7C'
 
@@ -45,6 +43,7 @@ async def calculateDistances(latitude, longitude):
         response = requests.request("GET", url)
         data = dict(json.loads(response.text))
         distance_values.extend([x['duration']['value'] for x in data['rows'][0]['elements']])
+        addresses.extend(data['destination_addresses'])
     min_index = np.argmin(distance_values)
     closest_parking_lot = parking_slots_state[dict_keys[min_index]]
-    return closest_parking_lot[0],data['destination_addresses'][min_index],closest_parking_lot[1],dict_keys[min_index]
+    return closest_parking_lot[0],addresses[min_index],closest_parking_lot[1],dict_keys[min_index]
