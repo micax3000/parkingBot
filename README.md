@@ -1,2 +1,3 @@
 # parkingBot
-![image](https://user-images.githubusercontent.com/73846781/226477863-95a490ab-a106-464a-9c0b-010bbd515cc6.png)
+![image](https://user-images.githubusercontent.com/73846781/226478359-4ad1635d-8c60-4482-9234-7c24d1306b89.png)
+
