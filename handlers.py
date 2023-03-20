@@ -4,12 +4,16 @@ import services as s
 from telegram.ext import ContextTypes
 from telegram import Update, KeyboardButton
 
+introductionText = 'Parking bot je dizajniran da pomogne korisnicima da pronađu dostupna parking mesta u Beogradu.' \
+                   ' Bot ima dve komande: /slobodna_mesta i slanje lokacije. Komanda /slobodna_mesta pruža korisniku listu svih dostupnih parking mesta u oblasti i' \
+                   ' trenutni broj slobodnih mesta u svakom parkingu.\n' \
+                    'Klikom na dugme `pronadji parking` korisnik salje svoju lokaciju botu,a bot će izračunati najbliže parking mesto sa slobodnim mestima. Klikom na dobijenu lokaciju moze se pronaci putanja od Vase lokacije do najblizeg parkinga.' \
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    custom_keyboard = [[KeyboardButton('/slobodna_mesta'), KeyboardButton('najblizi parking', request_location=True)]]
+    custom_keyboard = [[KeyboardButton('/slobodna_mesta'), KeyboardButton('pronadji parking', request_location=True)]]
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=False)
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text='/slobodna_mesta - Slobodna mesta po parkingu\nPosalji svoju lokaciju ako zelis da pronadjes najblize parkiraliste sa slobodnim mestima',
+                                   text=introductionText,
                                    reply_markup=reply_markup)
 
 

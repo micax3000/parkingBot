@@ -1,6 +1,5 @@
 import logging
 import handlers as hl
-import datetime as dt
 import services as s
 import threading
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler,ConversationHandler
