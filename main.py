@@ -2,7 +2,7 @@ import logging
 import handlers as hl
 import services as s
 import threading
-from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler,ConversationHandler
+from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler
 from api import telegram_api
 
 
