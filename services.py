@@ -5,7 +5,6 @@ import threading
 import pprint as pp
 import datetime as dt
 import bs4 as bs
-import numpy as np
 from typing import List
 from api import distance_api as DISTANCE_API
 
@@ -37,13 +36,13 @@ async def calculateDistances(latitude, longitude):
         for key in dict_keys[i:i+25]:
             key = key.split(',')
             destinations += key[0] + '%2C' + key[1] + '%7C'
-
-        url = f'https://maps.googleapis.com/maps/api/distancematrix/json?' \
-              f'origins={latitude}%2C{longitude}&destinations={destinations[:-3]}&key={DISTANCE_API}'
-        response = requests.request("GET", url)
-        data = dict(json.loads(response.text))
-        distance_values.extend([x['duration']['value'] for x in data['rows'][0]['elements']])
-        addresses.extend(data['destination_addresses'])
-    min_index = np.argmin(distance_values)
+        if destinations != '':
+            url = f'https://maps.googleapis.com/maps/api/distancematrix/json?' \
+                  f'origins={latitude}%2C{longitude}&destinations={destinations[:-3]}&key={DISTANCE_API}'
+            response = requests.request("GET", url)
+            data = dict(json.loads(response.text))
+            distance_values.extend([x['duration']['value'] for x in data['rows'][0]['elements']])
+            addresses.extend(data['destination_addresses'])
+    min_index = distance_values.index(min(distance_values))
     closest_parking_lot = parking_slots_state[dict_keys[min_index]]
     return closest_parking_lot[0],addresses[min_index],closest_parking_lot[1],dict_keys[min_index]
