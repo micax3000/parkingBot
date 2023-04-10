@@ -1,10 +1,13 @@
+import os
 import logging
 import handlers as hl
 import services as s
 import threading
+from dotenv import load_dotenv
 from telegram.ext import filters, ApplicationBuilder, CommandHandler, MessageHandler
-from api import telegram_api
 
+load_dotenv()
+telegram_api = os.getenv("TELEGRAM_API")
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

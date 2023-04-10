@@ -25,11 +25,15 @@ async def text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info(f'calculate distances run for (lat:{update.message.location.latitude},long:{update.message.location.longitude})')
     parking_info = await serv.calculateDistances(update.message.location.latitude, update.message.location.longitude)
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f'Najblizi parking je: {parking_info[0]}\nna adresi: {parking_info[1]}\nsa: {parking_info[2]} slobodnih mesta')
-    parking_info = parking_info[3].split(',')
-    await context.bot.send_location(chat_id=update.effective_chat.id, latitude=parking_info[0],
-                                    longitude=parking_info[1])
+    if parking_info == None:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f'Bot je dostigao maksimum zahteva po danu')
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f'Najblizi parking je: {parking_info[0]}\nna adresi: {parking_info[1]}\nsa: {parking_info[2]} slobodnih mesta')
+        parking_info = parking_info[3].split(',')
+        await context.bot.send_location(chat_id=update.effective_chat.id, latitude=parking_info[0],
+                                        longitude=parking_info[1])
 
 
 async def freeSlots(update: Update, context: ContextTypes.DEFAULT_TYPE):
